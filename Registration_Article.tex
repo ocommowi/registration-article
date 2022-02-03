@@ -1,11 +1,45 @@
-%!TEX root = HDR.tex
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
 
-\chapter{A versatile framework for images registration}
-\label{app:registration_framework}
+\usepackage{algorithm}
+\usepackage[noend]{algorithmic}
+\usepackage{amsmath,amssymb}
 
-\minitoc
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsExtensions{.jpg,.png}
+\graphicspath{{.}{images/}}
 
-We present in this appendix the generic registration algorithm used in several chapters (for different applications and image types). This algorithm relies on the block-matching algorithm introduced by~\cite{Ourselin_Miccai_2000} for rigid registration. It is in fact very versatile, usually requiring only the similarity measure between blocks (and a re-orientation scheme for images of oriented models such as \ac{DT} or \ac{DCM} images) to be defined to perform the registration. We explore in the first sections the individual elements of the registration and provide the general algorithms in Section~\ref{sec:reg-algorithms}.
+\usepackage{fancyhdr}                    % Fancy Header and Footer
+
+%%% Fancy Header %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Fancy Header Style Options
+
+\pagestyle{fancy}                       % Sets fancy header and footer
+\fancyfoot{}                            % Delete current footer settings
+
+\fancyhead[R]{\bfseries\thepage} 
+\fancyhead[L]{\bfseries O. Commowick - A versatile framework for images registration}
+
+\def\argmax{\operatornamewithlimits{arg\,max}}
+\def\argmin{\operatornamewithlimits{arg\,min}} 
+
+\title{A versatile framework for images registration}
+\author{Olivier Commowick}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Bla
+\end{abstract}
+
+\tableofcontents
+
+\newpage
+
+We present in this appendix the generic registration algorithm used in several chapters (for different applications and image types). This algorithm relies on the block-matching algorithm introduced by~\cite{Ourselin_Miccai_2000} for rigid registration. It is in fact very versatile, usually requiring only the similarity measure between blocks (and a re-orientation scheme for images of oriented models such as DT or DCM images) to be defined to perform the registration. We explore in the first sections the individual elements of the registration and provide the general algorithms in Section~\ref{sec:reg-algorithms}.
 
 \section{Block-matching for medical images registration}
 
@@ -55,7 +89,7 @@ where $w_{\times}$ is the cross-product matrix of a vector of rotation angles $w
 
 Coming back to block-matching, one can now search for rigid transformations between a block and the floating image instead of just looking for translations. This is particularly useful for registration of images with articulated structures such as the spine~\cite{Commowick_Miccai_2012}. However, since the search space is now much larger (six variables instead of three), a brute force discrete search as in the translation case is much longer and, depending on the similarity measure optimized, a gradient-based or gradient-free optimization is more adapted.
 
-As a final remark, we presented here the search over rigid transformations but any other transformation with well defined parameters covering its entire spectrum may be used (e.g. similarity transformation or more specific transformations as presented in Section~\ref{sec:distoCorrection}).
+As a final remark, we presented here the search over rigid transformations but any other transformation with well defined parameters covering its entire spectrum may be used.
 
 \section{Global transformation extrapolation}
 
@@ -75,21 +109,21 @@ This directly leads to $\log(\delta T)$ being the weighted average of the input 
 \subsection{Non linear transformations}
 \label{sub:non-linear-extrapolation}
 
-When non linear transformations are sought, the extrapolation step is more difficult since many parameters come into play i.e. one 3D vector per voxel. In this section we will consider diffeomorphisms defined by their \ac{SVF} as the final transformation being sought. While encompassing a reduced set of the diffeomorphisms that may be encountered (contrarily to \ac{LDDMM}~\cite{Beg_IJCV_2005}), they have interesting properties that will be heavily used in this section, and that were well defined in the log-Euclidean frameworks for diffeomorphisms~\cite{arsigny:inria-00615594} and polyaffine transformations~\cite{arsigny:inria-00616084}.
+When non linear transformations are sought, the extrapolation step is more difficult since many parameters come into play i.e. one 3D vector per voxel. In this section we will consider diffeomorphisms defined by their SVF as the final transformation being sought. While encompassing a reduced set of the diffeomorphisms that may be encountered (contrarily to LDDMM~\cite{Beg_IJCV_2005}), they have interesting properties that will be heavily used in this section, and that were well defined in the log-Euclidean frameworks for diffeomorphisms~\cite{arsigny:inria-00615594} and polyaffine transformations~\cite{arsigny:inria-00616084}.
 
-In particular, we consider that $\delta T$ is defined by its \ac{SVF} $\delta S$ i.e. a vector field whose exponential is $\delta T$: $\delta T = \exp(\delta S)$. The goal is to extrapolate the ``log-vector'' at each voxel of $\delta S$ from the sparse set of optimal block transformations $\hat{A}_i$ located at their block centers $x_i$. For this task, we will heavily use the matrix logarithm of linear transformations, which is explicitly defined for translations and rigid transformations.
+In particular, we consider that $\delta T$ is defined by its SVF $\delta S$ i.e. a vector field whose exponential is $\delta T$: $\delta T = \exp(\delta S)$. The goal is to extrapolate the ``log-vector'' at each voxel of $\delta S$ from the sparse set of optimal block transformations $\hat{A}_i$ located at their block centers $x_i$. For this task, we will heavily use the matrix logarithm of linear transformations, which is explicitly defined for translations and rigid transformations.
 
-As a side note to this class of transformations, it has been demonstrated that computing the \ac{SVF} from a transformation $T$ is computationally expensive~\cite{arsigny:inria-00615594}. In addition, \ac{SVF} having nice properties for statistics computation, it is desirable to always keep $T$ implicit and instead compute the \ac{SVF} $S$. Transposing the transformation composition in that space however requires to use the \ac{BCH} approximation~\cite{Bossa_Miccai_2007,Vercauteren_Miccai_2008}.
+As a side note to this class of transformations, it has been demonstrated that computing the SVF from a transformation $T$ is computationally expensive~\cite{arsigny:inria-00615594}. In addition, SVF having nice properties for statistics computation, it is desirable to always keep $T$ implicit and instead compute the SVF $S$. Transposing the transformation composition in that space however requires to use the BCH approximation~\cite{Bossa_Miccai_2007,Vercauteren_Miccai_2008}.
 
 \subsubsection{Gaussian extrapolation} % (fold)
 \label{ssub:gaussian_extrapolation}
 
-The first and simplest way to extrapolate a dense \ac{SVF} is to use Gaussian extrapolation~\cite{commowick:tel-00133432,garcia:inria-00616148}. From the set of $\log(\hat{A}_i)$ and transformations locations $x_i$, we first construct a sparse field $C$ where each voxel corresponding to $x_i$ is affected by the displacement generated by $\log(\hat{A}_i)$: $C(x_i) = \log(\hat{A}_i) x_i$. The Gaussian extrapolation then builds a dense \ac{SVF} $\delta S$ from $C$ and a sparse field $W$ of weights $w_i$ attributed to each pairing (for example the optimal value of the similarity measure): $W(x_i) = w_i$. The extrapolated $\delta S$ is then defined as:
+The first and simplest way to extrapolate a dense SVF is to use Gaussian extrapolation~\cite{commowick:tel-00133432,garcia:inria-00616148}. From the set of $\log(\hat{A}_i)$ and transformations locations $x_i$, we first construct a sparse field $C$ where each voxel corresponding to $x_i$ is affected by the displacement generated by $\log(\hat{A}_i)$: $C(x_i) = \log(\hat{A}_i) x_i$. The Gaussian extrapolation then builds a dense SVF $\delta S$ from $C$ and a sparse field $W$ of weights $w_i$ attributed to each pairing (for example the optimal value of the similarity measure): $W(x_i) = w_i$. The extrapolated $\delta S$ is then defined as:
 
 \begin{equation}
 	\delta S = \frac{G_\sigma * W C}{G_\sigma * W}
 \end{equation}
-where $\sigma$ is the standard deviation of the Gaussian extrapolation kernel $G_\sigma$. This extrapolation works perfectly in a region where enough input matchings are present, e.g. inside the brain. On the contrary, in regions far away from the blocks, this extrapolation is meaningless and may lead to artificially large deformations. To counter this effect, an additional post-processing is performed on the obtained \ac{SVF}: when far enough from any matching ($G_\sigma * W$ below a certain threshold), $\delta S$ is gradually set to identity (i.e. zero velocity field).
+where $\sigma$ is the standard deviation of the Gaussian extrapolation kernel $G_\sigma$. This extrapolation works perfectly in a region where enough input matchings are present, e.g. inside the brain. On the contrary, in regions far away from the blocks, this extrapolation is meaningless and may lead to artificially large deformations. To counter this effect, an additional post-processing is performed on the obtained SVF: when far enough from any matching ($G_\sigma * W$ below a certain threshold), $\delta S$ is gradually set to identity (i.e. zero velocity field).
 
 As for linear transformation computation, outliers in pairings need to be accounted for. A simple operation to do so is to compute at voxel locations $x_i$ the norm of the difference between $\delta S(x_i)$ and $C(x_i)$: $r_i = || C(x_i) - \delta S(x_i) ||$. From these, the mean displacement difference $r$ over the whole image is computed as well as the variance $\sigma_r^2$:
 
@@ -146,7 +180,7 @@ The first, classical, registration built around the block-matching is the asymme
   \ENDFOR
 \end{algorithmic}
 \end{algorithm}
-From two images, a reference $R$ and a floating image $F$, the algorithm seeks $T$ by running a multi-resolution pyramid. At each step, the previously described components are put together to estimate update $\delta T$ (or $\delta S$ if the transformation computed is non linear) and compose it with the current estimate of $T$ (\ac{BCH} approximation for \ac{SVF}). In this case, $R$ and $F$ clearly have an asymmetric role, blocks being always defined on $R$ and only $F$ being resampled.
+From two images, a reference $R$ and a floating image $F$, the algorithm seeks $T$ by running a multi-resolution pyramid. At each step, the previously described components are put together to estimate update $\delta T$ (or $\delta S$ if the transformation computed is non linear) and compose it with the current estimate of $T$ (BCH approximation for SVF). In this case, $R$ and $F$ clearly have an asymmetric role, blocks being always defined on $R$ and only $F$ being resampled.
 
 % subsection asymmetric_registration (end)
 
@@ -171,7 +205,7 @@ In the previous algorithm, blocks are always defined on $R$ while $F$ is always 
   \ENDFOR
 \end{algorithmic}
 \end{algorithm}
-Again, $T$ and $\delta T$ are replaced by $S$ and $\delta S$ when dealing with non linear transformations. In this algorithm, blocks are defined at each step both on $R$ and on $F$ and used to estimate two asymmetric updates: $\delta T_F$ and $\delta T_R$ (respectively $\delta S_F$ and $\delta S_R$ for non linear transformations). To account for these two updates and ensure inverse symmetry, the composition step is modified and preceded by an averaging of the two updates (for linear transformations using the matrix logarithm, and for \ac{SVF} the log-Euclidean framework):
+Again, $T$ and $\delta T$ are replaced by $S$ and $\delta S$ when dealing with non linear transformations. In this algorithm, blocks are defined at each step both on $R$ and on $F$ and used to estimate two asymmetric updates: $\delta T_F$ and $\delta T_R$ (respectively $\delta S_F$ and $\delta S_R$ for non linear transformations). To account for these two updates and ensure inverse symmetry, the composition step is modified and preceded by an averaging of the two updates (for linear transformations using the matrix logarithm, and for SVF the log-Euclidean framework):
 
 \begin{eqnarray}
 	\delta T & = & \exp\left(\frac{1}{2} \left[\log(\delta T_R) - \log(\delta T_F)\right] \right) \\
@@ -209,4 +243,10 @@ As for direct symmetry in Algorithm~\ref{algo:symReg}, the composition step is m
 \end{eqnarray}
 The only difference with direct symmetry is here $1/4$ instead of $1/2$ to account for the fact that we are looking for a transformation bringing the two images on a middle point where they match. Applying the final transformation $T$ to $F$, is as simple as taking the square transformation (or multiply it by 2 in the ``log-space'').
 
-% subsection kissing_symmetric_registration (end)
+\newpage 
+
+\bibliographystyle{plain}
+\bibliography{Registration_Article}
+
+
+\end{document}
