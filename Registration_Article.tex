@@ -5,6 +5,7 @@
 \usepackage{algorithm}
 \usepackage[noend]{algorithmic}
 \usepackage{amsmath,amssymb}
+\usepackage{hyperref}
 
 \usepackage[pdftex]{graphicx}
 \DeclareGraphicsExtensions{.jpg,.png}
@@ -24,7 +25,7 @@
 \def\argmax{\operatornamewithlimits{arg\,max}}
 \def\argmin{\operatornamewithlimits{arg\,min}} 
 
-\title{A versatile framework for images registration}
+\title{A versatile block-matching framework for images registration}
 \author{Olivier Commowick}
 
 \begin{document}
@@ -32,14 +33,25 @@
 \maketitle
 
 \begin{abstract}
-Bla
+This paper presents new methodological developments and experiments, quite incremental but at the core of the block-matching registration algorithm provided in the \href{https://anima.irisa.fr}{Anima software}. The overall goal of this article is to present those advances, to include new experiments illustrating their behavior, and to provide a discussion forum on the article using the associated git repository and discussions. Updates of the paper will be posted over time when new incremental developments come into play. As of now the paper includes developments on the core of the algorithm, its symmetrization, transforms used between blocks, and global linear and non linear transformations computation.
 \end{abstract}
 
 \tableofcontents
 
 \newpage
 
-We present in this appendix the generic registration algorithm used in several chapters (for different applications and image types). This algorithm relies on the block-matching algorithm introduced by~\cite{Ourselin_Miccai_2000} for rigid registration. It is in fact very versatile, usually requiring only the similarity measure between blocks (and a re-orientation scheme for images of oriented models such as DT or DCM images) to be defined to perform the registration. We explore in the first sections the individual elements of the registration and provide the general algorithms in Section~\ref{sec:reg-algorithms}.
+\section{Introduction}
+
+The main idea of this continuous article is to be regularly updated by new developments on the registration algorithms I have been working on for years, and for which ncremental updates are not sufficient to justify proper publication. It derives from this fact that this paper is not fully and properly peer-reviewed and should be taken as is. It is however a way for me to test a new idea of evolutive papers that I have wanted to try for quite a few years now. This paper and the associated repository will evolve over time, using the possibilities offered by a Git platform to provide:
+
+\begin{itemize}
+\item releases when sufficiently important changes happen to the paper (new set of experiments, new methodological developments, etc.)
+\item a discussion forum opened for discussion on the paper and methodology. It can include either reviews of a part or all of the paper, discussion on new ideas related to the paper, etc.
+\end{itemize}
+
+This article aims at performing magnetic resonance images (MRI) registration. This field is a very developed one, including many methods and developments, from rigid / affine registration up to highly local large diffeomorphic metric mapping (LDDMM) registration~\cite{Beg_IJCV_2005,Avants_Media_2008}. Many reviews have been published in this field covering different aspects of registration~\cite{Pluim_2003,Oliveira_2014,Viergever_2016}. While all this literature has explored many aspects of linear and non linear registration, the field is still widely open to research, for example to register well highly variable structures such as the gray matter, or to obtain robust and fast enough methods usable in a clinical context. This paper enters in this second type of approaches, focusing on obtaining robust results for virtually any type of images (diffusion tensors, higher order diffusion models, scalar images of different modalities, etc.), both for linear and non linear transformations.
+
+To do so, I have based my research in this field on the well known block-matching technique. It has been introduced in the medical imaging community by~\cite{Ourselin_Miccai_2000} for rigid registration. This approach is in fact very versatile, usually requiring only the similarity measure between blocks (and a re-orientation scheme for images of oriented models such as tensors or higher order models) to be defined to perform the registration. While we have published over the years a few papers utilizing this technique for various tasks (rigid registration~\cite{commowick:inserm-00681610}, non linear registration~\cite{Commowick_Miccai_2012}, tensor images registration~\cite{suarez:inserm-00657707}, diffusion compartment models registration~\cite{commowick:inserm-01556476}, distorsion correction of EPI images~\cite{Hedouin_TMI_2017}), the core part of these algorithms and some subtleties of it have always remained under the hood in our papers. I thus explore in this paper a few novelties and the core parts of the algorithm that I think deserve their discussion. In the next first sections, the individual elements of the registration  are detailed, and then I provide the general algorithms in Section~\ref{sec:reg-algorithms}. Experiments on linear and non linear registration will then come in time to illustrate some aspects of the algorithm.
 
 \section{Block-matching for medical images registration}
 
