@@ -168,7 +168,7 @@ where $\rho'$ acts as a tonal kernel, which for the Welsch function $\rho$ is wr
 
 % subsubsection m_smoothing_extrapolation (end)
 
-\section{Asymmetric or symmetric registration}
+\section{Asymmetric and symmetric registration}
 \label{sec:reg-algorithms}
 
 From the previous sections, we now have all the necessary elements (apart from a few such as being able to resample images or the similarity measure which is not the topic here) to perform the registration of two images. The final step is to combine all of these into an algorithm. At this stage, it is crucial to note that the block-matching core algorithm is intrinsically an asymmetric one: images $R$ and $F$ do not play the same role and reverting their use does not lead to the exact inverse of $\delta T$. Options are however available to ensure this, and this is why we detail three algorithms, going from no symmetry to more and more symmetry.
