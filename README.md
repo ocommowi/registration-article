@@ -4,8 +4,8 @@ This repository sims at providing, release after release, a new concept of artic
 
 The possibilities offered by a Git platform will be used to provide:
 
-* releases when sufficiently important changes happen to the paper (new set of experiments, new methodological developments, etc.)
-* a discussion forum opened for discussion on the paper and methodology. It can include either reviews of a part or all of the paper, discussion on new ideas related to the paper, etc.
+* [releases](https://github.com/ocommowi/registration-article/releases) when sufficiently important changes happen to the paper (new set of experiments, new methodological developments, etc.)
+* a [discussion forum](https://github.com/ocommowi/registration-article/discussions) opened for discussion on the paper and methodology. It can include either reviews of a part or all of the paper, discussion on new ideas related to the paper, etc.
 
 Associated to this article, all developments proposed here are available in the Anima software from the Empenn team. See at these two locations for trying it out:
 
