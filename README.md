@@ -1,6 +1,6 @@
 # An evolutive article on block-matching based registration techniques
 
-This repository sims at providing, release after release, a new concept of article that evolves over time and incremental updates of the associated registration algorithms. This paper focuses on the block-matching algorithm for medical images registration and the core, behind the hood, developments I have made to it (with numerous students and post-docs) over the years. It cannot be self-contained but hopefully will contain stuff of interest to the readers.
+This repository aims at providing, release after release, a new concept of article that evolves over time and incremental updates of the associated registration algorithms. This paper focuses on the block-matching algorithm for medical images registration and the core, behind the hood, developments I have made to it (with numerous students and post-docs) over the years. It cannot be self-contained but hopefully will contain stuff of interest to the readers.
 
 The possibilities offered by a Git platform will be used to provide:
 
