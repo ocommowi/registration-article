@@ -179,7 +179,7 @@ From the previous sections, we now have all the necessary elements (apart from a
 The first, classical, registration built around the block-matching is the asymmetric one. It is described in Algorithm~\ref{algo:asymReg}.
 
 \begin{algorithm}[!htbp]
-\caption{Asymmetric Block-Matching Registration Algorithm}
+\caption{Asymmetric block-matching registration algorithm}
 \label{algo:asymReg}
 \begin{algorithmic}[1]
   \FOR{$p=1...P$, iteration on pyramid levels,}
@@ -202,7 +202,7 @@ From two images, a reference $R$ and a floating image $F$, the algorithm seeks $
 In the previous algorithm, blocks are always defined on $R$ while $F$ is always the floating image. This second algorithm, presented in Algorithm~\ref{algo:symReg}, aims at symmetrizing this definition of blocks and ensuring that the obtained transformation when inverting $F$ and $R$ roles is the same up to an inverse, hereafter called inverse symmetry.
 
 \begin{algorithm}[!htbp]
-\caption{Symmetric Block-Matching Registration Algorithm}
+\caption{Symmetric block-matching registration algorithm}
 \label{algo:symReg}
 \begin{algorithmic}[1]
   \FOR{$p=1...P$, iteration on pyramid levels,}
@@ -232,7 +232,7 @@ Again, $T$ and $\delta T$ are replaced by $S$ and $\delta S$ when dealing with n
 In direct symmetry, the images roles are not completely symmetric. In fact, one image in each way (from $F \circ T$ to $R$ and from $R \circ T^{-1}$ to $F$) is never resampled: the transformation is applied only to one image at a time. Kissing symmetry instead seeks the transformation $T$ so that $R \circ T^{-1}$ and $F \circ T$ match. $T$ now encodes the half transformation between the images: this amounts to looking for an intermediate position in between the two images by moving both of them towards each other, thereby fully symmetrizing their roles. This registration is presented in Algorithm~\ref{algo:kSymReg}.
 
 \begin{algorithm}[!htbp]
-\caption{Kissing Symmetric Block-Matching Registration Algorithm}
+\caption{Kissing symmetric block-matching registration algorithm}
 \label{algo:kSymReg}
 \begin{algorithmic}[1]
   \FOR{$p=1...P$, iteration on pyramid levels,}
@@ -254,6 +254,32 @@ As for direct symmetry in Algorithm~\ref{algo:symReg}, the composition step is m
 	\delta S & = & \frac{1}{4} \left(\delta S_R - \delta S_F\right)
 \end{eqnarray}
 The only difference with direct symmetry is here $1/4$ instead of $1/2$ to account for the fact that we are looking for a transformation bringing the two images on a middle point where they match. Applying the final transformation $T$ to $F$, is as simple as taking the square transformation (or multiply it by 2 in the ``log-space'').
+
+Going further on that path, it is in fact possible to register the two images onto any given point on the transformation geodesic between the two images, i.e. transform $F$ with the transformation $T^{\alpha}$ and $R$ with the transformation $T^{\alpha - 1}$ with $\alpha \in [0,1]$. In this case, the previous algorithm is modified a little to account for this (Algorithm~\ref{algo:kSymAnyPointReg}:
+
+\begin{algorithm}[!htbp]
+\caption{Kissing block-matching registration algorithm on transformation path}
+\label{algo:kSymAnyPointReg}
+\begin{algorithmic}[1]
+  \FOR{$p=1...P$, iteration on pyramid levels,}
+    \FOR{$l=1...L$, iterations,}
+      \STATE{Resample $F$ with $T^{\alpha}$ and $R$ with $T^{\alpha - 1}$}
+      \STATE{Match $R \circ T^{\alpha - 1}$ and $F \circ T^{\alpha}$: $\delta T_F \leftarrow \text{block-match} (R \circ T^{\alpha - 1},F \circ T^{\alpha})$}
+      \STATE{Match $F \circ T^{\alpha}$ and $R \circ T^{\alpha - 1}$: $\delta T_R \leftarrow \text{block-match} (F \circ T^{\alpha},R \circ T^{\alpha - 1})$}
+      \STATE{Compute the half transform update $\delta T$ from $\delta T_F$ and $\delta T_R$}
+      \STATE{Update $T$ by composing it with $\delta T$}
+      \STATE{If needed, regularize $T$ (elastic-like)}
+    \ENDFOR
+  \ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+The $\delta T$, respectively $\delta S$, computation from the asymmetric updates is thus again modified:
+
+\begin{eqnarray}
+	\delta T & = & \exp\left(\frac{\alpha}{2} \left[ \log(\delta T_R) - \log(\delta T_F)\right] \right) \\
+	\delta S & = & \frac{\alpha}{2} \left(\delta S_R - \delta S_F\right)
+\end{eqnarray}
 
 \newpage 
 
